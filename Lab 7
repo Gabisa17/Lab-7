@@ -1,0 +1,126 @@
+#include <Arduino.h>
+#include <driver/uart.h>
+//Definición de Leds
+#define led_1 21
+#define led_2 19
+#define led_3 18
+
+//Definición de potenciometro
+#define pot 36
+
+//variable menú
+int menu1;
+
+// variables para función de led
+int led; 
+int tiempo; 
+
+//función de leds
+void leds (int led, int tiempo);
+
+//variable para leer menu
+int leer1 = 0;
+int leer2 = 0;
+int leer3 = 0;
+
+//variable voltaje pot
+int volt;
+
+void setup(){
+
+Serial.begin(115200);
+
+//Configuración leds
+pinMode(led_1, OUTPUT);
+pinMode(led_2, OUTPUT);
+pinMode(led_3, OUTPUT);
+
+//estado incial leds
+digitalWrite(led_1, LOW); 
+digitalWrite(led_2, LOW);
+digitalWrite(led_3, LOW);
+
+}
+
+void loop(){
+
+
+
+if (Serial.available()>0){
+  if (leer1 == 0){
+    Serial.printf("1. Lectura ADC 2. Controlar LEDs \n");
+    menu1 = Serial.parseInt();
+    leer1= 1;  
+  }
+    //Serial.println(menu1);
+  if (menu1 == 1){
+    volt = analogRead(pot);
+    Serial.println(volt);
+  }
+    
+  else if (menu1 == 2){
+    if(leer2 == 0){
+      Serial.println("1.Led 1  2.Led 2  3.Led 3 \n");
+      delay(1000);
+      while (leer2==0) { 
+        led = Serial.parseInt();
+        if(led == 1 | led == 2 | led == 3){
+        leer2 = 1;
+      }else {
+        leer2 = 0;
+        Serial.println("Valor no válido");
+      }
+      } 
+    }
+      if(leer3 == 0){
+      Serial.println("¿Cuánto tiempo quieres que este encendida? \n");
+      delay(5000);
+        while (leer3==0) { 
+          tiempo = Serial.parseInt();
+          if(tiempo>=100 & tiempo<=5000){
+          leer3 = 1;
+        }else {
+          leer3 = 0;
+          Serial.println("Valor no válido");
+        }
+        leds(led, tiempo);
+        }
+      }
+  
+  }
+}
+leer1 = 0;
+leer2 = 0;
+leer3 = 0;
+delay(10);
+}
+
+void leds (int led, int tiempo){
+  if (led == 1){
+    digitalWrite(led_1, HIGH);
+    digitalWrite(led_2, LOW);
+    digitalWrite(led_3, LOW);
+    delay(tiempo);
+    digitalWrite(led_1, LOW);
+    digitalWrite(led_2, LOW);
+    digitalWrite(led_3, LOW);
+  }
+  if (led == 2){
+    digitalWrite(led_1, LOW);
+    digitalWrite(led_2, HIGH);
+    digitalWrite(led_3, LOW);
+    delay(tiempo);
+    digitalWrite(led_1, LOW);
+    digitalWrite(led_2, LOW);
+    digitalWrite(led_3, LOW);
+  }
+  if (led == 3){
+    digitalWrite(led_1, LOW);
+    digitalWrite(led_2, LOW);
+    digitalWrite(led_3, HIGH);
+    delay(tiempo);
+    digitalWrite(led_1, LOW);
+    digitalWrite(led_2, LOW);
+    digitalWrite(led_3, LOW);
+  }
+}
